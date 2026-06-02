@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Europe Trip App</title>
+    <style>
+        :root {
+            --bg: #000000;
+            --app-bg: #121212;
+            --card-bg: #1e1e1e;
+            --accent: #38bdf8;
+            --text: #ffffff;
+            --text-muted: #a0a0a0;
+        }
+
+        body {
+            background-color: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        /* Mobile Phone Container */
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            height: 850px;
+            max-height: 100vh;
+            background-color: var(--app-bg);
+            position: relative;
+            overflow: hidden;
+            border-radius: 40px;
+            box-shadow: 0 0 50px rgba(56, 189, 248, 0.15);
+            border: 8px solid #222;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Navigation Scroll */
+        .day-nav {
+            display: flex;
+            overflow-x: auto;
+            background-color: rgba(18, 18, 18, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem 1rem 1rem 1rem;
+            gap: 1rem;
+            position: absolute;
+            top: 0;
+            width: 100%;
+            z-index: 10;
+            box-sizing: border-box;
+            scrollbar-width: none; /* Firefox */
+        }
+        .day-nav::-webkit-scrollbar { display: none; }
+
+        .day-pill {
+            background-color: var(--card-bg);
+            color: var(--text-muted);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .day-pill.active {
+            background-color: var(--accent);
+            color: #000;
+        }
+
+        /* Scrollable Content */
+        .content-scroll {
+            flex: 1;
+            overflow-y: auto;
+            scrollbar-width: none;
+            padding-bottom: 2rem;
+        }
+        .content-scroll::-webkit-scrollbar { display: none; }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            height: 350px;
+            width: 100%;
+        }
+        .hero img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .hero-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            background: linear-gradient(to top, rgba(18,18,18,1), rgba(18,18,18,0));
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 1.5rem;
+            box-sizing: border-box;
+        }
+        .hero-date {
+            color: var(--accent);
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+        .hero-city {
+            color: var(--text);
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 5px;
+        }
+        .hero-theme {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        /* Feed / Events */
+        .feed {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .event-card {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            animation: slideUp 0.4s ease forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        /* Staggered card animations */
+        .event-card:nth-child(1) { animation-delay: 0.1s; }
+        .event-card:nth-child(2) { animation-delay: 0.2s; }
+        .event-card:nth-child(3) { animation-delay: 0.3s; }
+        .event-card:nth-child(4) { animation-delay: 0.4s; }
+
+        .event-img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .event-info {
+            padding: 1.25rem;
+            position: relative;
+        }
+
+        .event-time {
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            background-color: var(--accent);
+            color: #000;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 5px 12px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(56, 189, 248, 0.3);
+        }
+
+        .event-title {
+            color: var(--text);
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .event-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        @keyframes slideUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 450px) {
+            .app-container {
+                border: none;
+                border-radius: 0;
+                height: 100vh;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Top Nav generated by JS -->
+        <div class="day-nav" id="dayNav"></div>
+
+        <div class="content-scroll" id="contentScroll">
+            <!-- Hero and Feed generated by JS -->
+            <div id="appBody"></div>
+        </div>
+    </div>
+
+    <script>
+        const itinerary = [
+            {
+                day: 1, date: "JULY 13", city: "Barcelona", theme: "The Gothic Arrival",
+                heroImg: "https://loremflickr.com/600/600/barcelona,city",
+                events: [
+                    { time: "09:00 AM", title: "Touchdown in BCN", desc: "Arrive from AUH. Taxi to the Eixample 4-bedroom flat.", img: "https://loremflickr.com/400/200/airplane,airport" },
+                    { time: "01:30 PM", title: "El Nacional", desc: "Upscale dining pavilion on Passeig de Gràcia to kick off the trip.", img: "https://loremflickr.com/400/200/restaurant,tapas" },
+                    { time: "04:00 PM", title: "Gothic Quarter", desc: "Walk off the jet lag exploring medieval streets.", img: "https://loremflickr.com/400/200/barcelona,gothic" },
+                    { time: "09:00 PM", title: "Can Paixano", desc: "Loud, crowded standing-room tapas and cheap Cava.", img: "https://loremflickr.com/400/200/wine,crowd" }
+                ]
+            },
+            {
+                day: 2, date: "JULY 14", city: "Barcelona", theme: "Gaudí & The Clubs",
+                heroImg: "https://loremflickr.com/600/600/sagradafamilia",
+                events: [
+                    { time: "09:30 AM", title: "Sagrada Família", desc: "VIP skip-the-line tour before the July heat peaks.", img: "https://loremflickr.com/400/200/church,gaudi" },
+                    { time: "02:00 PM", title: "Ciutat Comtal", desc: "Insanely popular premium tapas. Worth the wait.", img: "https://loremflickr.com/400/200/food,tapas" },
+                    { time: "05:00 PM", title: "Park Güell", desc: "Panoramic sunset views of the city skyline.", img: "https://loremflickr.com/400/200/parkguell" },
+                    { time: "10:00 PM", title: "El Born & Guzzo", desc: "Live jazz and street art vibe, transitioning to the mega clubs.", img: "https://loremflickr.com/400/200/nightclub,neon" }
+                ]
+            },
+            // Fast forwarding through some days to keep code manageable, but showing key transitions
+            {
+                day: 3, date: "JULY 15", city: "Barcelona", theme: "Coastal Recovery",
+                heroImg: "https://loremflickr.com/600/600/beach,barcelona",
+                events: [
+                    { time: "11:00 AM", title: "Casa Batlló", desc: "Stroll Passeig de Gràcia for luxury architecture.", img: "https://loremflickr.com/400/200/architecture,spain" },
+                    { time: "01:00 PM", title: "Mercat de la Boqueria", desc: "Iberian ham cones and fresh fruit on the go.", img: "https://loremflickr.com/400/200/market,food" },
+                    { time: "03:00 PM", title: "Barceloneta Beach", desc: "Beach club loungers and Mediterranean recovery.", img: "https://loremflickr.com/400/200/beach,lounge" },
+                    { time: "09:30 PM", title: "Can Solé", desc: "Legendary seafood restaurant for authentic high-end paella.", img: "https://loremflickr.com/400/200/paella,seafood" }
+                ]
+            },
+            {
+                day: 5, date: "JULY 17", city: "Paris", theme: "The 24-Hour Sprint",
+                heroImg: "https://loremflickr.com/600/600/paris,eiffel",
+                events: [
+                    { time: "08:00 AM", title: "Flight to Paris", desc: "Early flight. Check into the central Le Marais flat.", img: "https://loremflickr.com/400/200/paris,street" },
+                    { time: "01:30 PM", title: "L'As du Fallafel", desc: "Massive street pitas in the heart of Le Marais.", img: "https://loremflickr.com/400/200/falafel,food" },
+                    { time: "04:00 PM", title: "Eiffel Tower", desc: "Summit access. Overlooking the entire French capital.", img: "https://loremflickr.com/400/200/eiffeltower" },
+                    { time: "08:30 PM", title: "Le Train Bleu", desc: "High-end dinner in a gilded, historic palace restaurant.", img: "https://loremflickr.com/400/200/dining,luxury" }
+                ]
+            },
+            {
+                day: 6, date: "JULY 18", city: "Nice", theme: "TGV to the Riviera",
+                heroImg: "https://loremflickr.com/600/600/nice,france",
+                events: [
+                    { time: "09:00 AM", title: "TGV First Class", desc: "Board the 'Carré' 4-person train pod heading south at 300km/h.", img: "https://loremflickr.com/400/200/train,highspeed" },
+                    { time: "12:30 PM", title: "Train Picnic", desc: "Baguettes and meats from Paris eaten on the train.", img: "https://loremflickr.com/400/200/baguette,cheese" },
+                    { time: "03:30 PM", title: "Promenade des Anglais", desc: "Drop bags and walk the iconic blue coastline of Nice.", img: "https://loremflickr.com/400/200/coastline,promenade" },
+                    { time: "08:30 PM", title: "La Petite Maison", desc: "The defining glamorous dining spot of the French Riviera.", img: "https://loremflickr.com/400/200/restaurant,elegant" }
+                ]
+            },
+            {
+                day: 10, date: "JULY 22", city: "Amalfi Coast", theme: "The A2 Autostrada",
+                heroImg: "https://loremflickr.com/600/600/amalficoast",
+                events: [
+                    { time: "09:00 AM", title: "Messina Car Ferry", desc: "Roll the rental car onto the boat for the 20-min crossing.", img: "https://loremflickr.com/400/200/ferry,boat" },
+                    { time: "12:00 PM", title: "Ferry Espresso", desc: "Quick coffee and sandwiches on the deck.", img: "https://loremflickr.com/400/200/espresso,coffee" },
+                    { time: "02:00 PM", title: "The Great Drive", desc: "Blasting up the Calabrian mountains to Sorrento.", img: "https://loremflickr.com/400/200/highway,driving" },
+                    { time: "08:30 PM", title: "Da Michele Pizza", desc: "World-class Neapolitan pizza to celebrate arriving.", img: "https://loremflickr.com/400/200/pizza,neapolitan" }
+                ]
+            },
+            {
+                day: 11, date: "JULY 23", city: "Capri", theme: "The Boat Charter",
+                heroImg: "https://loremflickr.com/600/600/capri,yacht",
+                events: [
+                    { time: "09:30 AM", title: "Private Motorboat", desc: "Skipper picks the crew up from Sorrento marina.", img: "https://loremflickr.com/400/200/speedboat,ocean" },
+                    { time: "01:30 PM", title: "La Fontelina", desc: "Exclusive beach club lunch tucked into the Capri rocks.", img: "https://loremflickr.com/400/200/beachclub,umbrellas" },
+                    { time: "04:00 PM", title: "Cliff Jumping", desc: "Cruising the Faraglioni rocks and dropping anchor.", img: "https://loremflickr.com/400/200/cliffs,sea" },
+                    { time: "09:00 PM", title: "Sorrento Nightlife", desc: "Drinks and high energy at Fauno Notte Club.", img: "https://loremflickr.com/400/200/cocktails,night" }
+                ]
+            },
+            {
+                day: 13, date: "JULY 25", city: "Rome", theme: "Vatican & Carnivores",
+                heroImg: "https://loremflickr.com/600/600/rome,vatican",
+                events: [
+                    { time: "08:00 AM", title: "Vatican Museums", desc: "VIP early access to beat the heat and crowds.", img: "https://loremflickr.com/400/200/vatican,art" },
+                    { time: "01:30 PM", title: "Armando al Pantheon", desc: "Premium sit-down lunch next to ancient history.", img: "https://loremflickr.com/400/200/pasta,wine" },
+                    { time: "04:00 PM", title: "Trevi Fountain", desc: "Toss a coin and hit the luxury shops on Via Condotti.", img: "https://loremflickr.com/400/200/trevifountain" },
+                    { time: "09:00 PM", title: "Macelleria Bifulco", desc: "The ultimate splurge. High-end dry-aged Roman steakhouse.", img: "https://loremflickr.com/400/200/steak,meat" }
+                ]
+            }
+        ];
+
+        const dayNav = document.getElementById('dayNav');
+        const appBody = document.getElementById('appBody');
+
+        function renderNav() {
+            itinerary.forEach((data, index) => {
+                const pill = document.createElement('div');
+                pill.className = `day-pill ${index === 0 ? 'active' : ''}`;
+                pill.innerText = `Day ${data.day}`;
+                pill.onclick = () => selectDay(index, pill);
+                dayNav.appendChild(pill);
+            });
+        }
+
+        function selectDay(index, clickedPill) {
+            // Update active pill
+            document.querySelectorAll('.day-pill').forEach(p => p.classList.remove('active'));
+            clickedPill.classList.add('active');
+            
+            // Scroll nav to center the clicked pill
+            clickedPill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+
+            // Render content
+            renderContent(itinerary[index]);
+            
+            // Reset main scroll
+            document.getElementById('contentScroll').scrollTop = 0;
+        }
+
+        function renderContent(data) {
+            let eventsHtml = data.events.map(event => `
+                <div class="event-card">
+                    <img src="${event.img}" class="event-img" alt="${event.title}">
+                    <div class="event-info">
+                        <div class="event-time">${event.time}</div>
+                        <div class="event-title">${event.title}</div>
+                        <div class="event-desc">${event.desc}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            appBody.innerHTML = `
+                <div class="hero">
+                    <img src="${data.heroImg}" alt="${data.city}">
+                    <div class="hero-overlay">
+                        <div class="hero-date">DAY ${data.day} • ${data.date}</div>
+                        <div class="hero-city">${data.city}</div>
+                        <div class="hero-theme">${data.theme}</div>
+                    </div>
+                </div>
+                <div class="feed">
+                    ${eventsHtml}
+                </div>
+            `;
+        }
+
+        // Init
+        renderNav();
+        renderContent(itinerary[0]);
+    </script>
+</body>
+</html>
