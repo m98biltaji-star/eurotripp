@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Europe Trip App</title>
+    <title>Europe 2026: 15k QAR Blueprint</title>
     <style>
         :root {
             --bg: #000000;
@@ -12,6 +12,7 @@
             --accent: #38bdf8;
             --text: #ffffff;
             --text-muted: #a0a0a0;
+            --border-color: #333;
         }
 
         body {
@@ -22,6 +23,7 @@
             height: 100vh;
             margin: 0;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
         }
 
         /* Mobile Phone Container */
@@ -53,7 +55,7 @@
             width: 100%;
             z-index: 10;
             box-sizing: border-box;
-            scrollbar-width: none; /* Firefox */
+            scrollbar-width: none;
         }
         .day-nav::-webkit-scrollbar { display: none; }
 
@@ -67,11 +69,13 @@
             white-space: nowrap;
             cursor: pointer;
             transition: all 0.2s;
+            border: 1px solid var(--border-color);
         }
 
         .day-pill.active {
             background-color: var(--accent);
             color: #000;
+            border-color: var(--accent);
         }
 
         /* Scrollable Content */
@@ -99,8 +103,8 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 60%;
-            background: linear-gradient(to top, rgba(18,18,18,1), rgba(18,18,18,0));
+            height: 70%;
+            background: linear-gradient(to top, rgba(18,18,18,1) 10%, rgba(18,18,18,0));
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
@@ -110,21 +114,22 @@
         .hero-date {
             color: var(--accent);
             font-size: 0.85rem;
-            font-weight: 700;
+            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 5px;
         }
         .hero-city {
             color: var(--text);
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             font-weight: 800;
-            line-height: 1.1;
-            margin-bottom: 5px;
+            line-height: 1;
+            margin-bottom: 8px;
         }
         .hero-theme {
             color: var(--text-muted);
-            font-size: 1rem;
+            font-size: 1.1rem;
+            font-weight: 500;
         }
 
         /* Feed / Events */
@@ -141,21 +146,26 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             animation: slideUp 0.4s ease forwards;
             opacity: 0;
             transform: translateY(20px);
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .event-card:active {
+            transform: scale(0.98);
         }
 
-        /* Staggered card animations */
-        .event-card:nth-child(1) { animation-delay: 0.1s; }
-        .event-card:nth-child(2) { animation-delay: 0.2s; }
-        .event-card:nth-child(3) { animation-delay: 0.3s; }
-        .event-card:nth-child(4) { animation-delay: 0.4s; }
+        .event-card:nth-child(1) { animation-delay: 0.05s; }
+        .event-card:nth-child(2) { animation-delay: 0.15s; }
+        .event-card:nth-child(3) { animation-delay: 0.25s; }
+        .event-card:nth-child(4) { animation-delay: 0.35s; }
 
         .event-img {
             width: 100%;
-            height: 150px;
+            height: 160px;
             object-fit: cover;
         }
 
@@ -172,22 +182,151 @@
             color: #000;
             font-size: 0.75rem;
             font-weight: 800;
-            padding: 5px 12px;
+            padding: 6px 14px;
             border-radius: 12px;
             box-shadow: 0 4px 10px rgba(56, 189, 248, 0.3);
+            letter-spacing: 0.5px;
         }
 
         .event-title {
             color: var(--text);
-            font-size: 1.2rem;
+            font-size: 1.25rem;
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .event-desc {
             color: var(--text-muted);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             line-height: 1.5;
+        }
+        
+        .click-hint {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: var(--accent);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Detail Modal Overlay */
+        .modal {
+            position: absolute;
+            top: 100%; /* Hidden initially */
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--app-bg);
+            z-index: 50;
+            transition: top 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .modal.open {
+            top: 0;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            display: flex;
+            justify-content: flex-end;
+            position: absolute;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 60;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), rgba(0,0,0,0));
+        }
+
+        .close-btn {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(5px);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            flex: 1;
+            overflow-y: auto;
+            scrollbar-width: none;
+            padding-bottom: 3rem;
+        }
+        .modal-content::-webkit-scrollbar { display: none; }
+
+        .gallery-scroll {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            height: 300px;
+        }
+        .gallery-scroll::-webkit-scrollbar { display: none; }
+        
+        .gallery-img {
+            min-width: 100%;
+            height: 100%;
+            object-fit: cover;
+            scroll-snap-align: start;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-tag {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .detail-row {
+            display: flex;
+            margin-bottom: 1rem;
+            background: var(--card-bg);
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+        .detail-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            width: 100px;
+            font-weight: 600;
+        }
+        .detail-value {
+            color: var(--text);
+            font-size: 0.9rem;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .modal-full-desc {
+            color: var(--text-muted);
+            line-height: 1.6;
+            font-size: 1.05rem;
+            margin-top: 1.5rem;
         }
 
         @keyframes slideUp {
@@ -207,136 +346,291 @@
 <body>
 
     <div class="app-container">
-        <!-- Top Nav generated by JS -->
+        <!-- Top Nav -->
         <div class="day-nav" id="dayNav"></div>
 
+        <!-- Main Feed -->
         <div class="content-scroll" id="contentScroll">
-            <!-- Hero and Feed generated by JS -->
             <div id="appBody"></div>
+        </div>
+
+        <!-- Detail Modal Overlay -->
+        <div class="modal" id="detailModal">
+            <div class="modal-header">
+                <button class="close-btn" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-content">
+                <div class="gallery-scroll" id="modalGallery">
+                    <!-- Images injected here -->
+                </div>
+                <div class="modal-body">
+                    <div class="modal-tag" id="modalTime"></div>
+                    <h2 class="modal-title" id="modalTitle"></h2>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">Location</div>
+                        <div class="detail-value" id="modalLoc"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Dress Code</div>
+                        <div class="detail-value" id="modalDress"></div>
+                    </div>
+                    
+                    <div class="modal-full-desc" id="modalDesc"></div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
+        // The Complete 14-Day Itinerary Data
         const itinerary = [
             {
                 day: 1, date: "JULY 13", city: "Barcelona", theme: "The Gothic Arrival",
-                heroImg: "https://loremflickr.com/600/600/barcelona,city",
+                heroImg: "https://loremflickr.com/600/800/barcelona,city?lock=101",
                 events: [
-                    { time: "09:00 AM", title: "Touchdown in BCN", desc: "Arrive from AUH. Taxi to the Eixample 4-bedroom flat.", img: "https://loremflickr.com/400/200/airplane,airport" },
-                    { time: "01:30 PM", title: "El Nacional", desc: "Upscale dining pavilion on Passeig de Gràcia to kick off the trip.", img: "https://loremflickr.com/400/200/restaurant,tapas" },
-                    { time: "04:00 PM", title: "Gothic Quarter", desc: "Walk off the jet lag exploring medieval streets.", img: "https://loremflickr.com/400/200/barcelona,gothic" },
-                    { time: "09:00 PM", title: "Can Paixano", desc: "Loud, crowded standing-room tapas and cheap Cava.", img: "https://loremflickr.com/400/200/wine,crowd" }
+                    { time: "09:00 AM", title: "Touchdown in BCN", desc: "Arrive from AUH. Taxi to the Eixample flat.", img: "https://loremflickr.com/400/300/airplane?lock=11",
+                      fullDesc: "Your flight from Abu Dhabi lands at BCN. Grab a premium taxi to the Eixample district. You will check into a massive 4-bedroom Airbnb with high ceilings, smart locks, and AC.", location: "Eixample, Barcelona", dressCode: "Travel Casual", gallery: ["https://loremflickr.com/600/400/apartment?lock=111", "https://loremflickr.com/600/400/taxi?lock=112"] },
+                    { time: "01:30 PM", title: "El Nacional", desc: "Stunning culinary pavilion on Passeig de Gràcia.", img: "https://loremflickr.com/400/300/tapas,restaurant?lock=12",
+                      fullDesc: "Kick off the food tour at this multi-space, 19th-century modernist dining hall. Perfect for upscale tapas, dry-aged meats, and draft beers.", location: "Passeig de Gràcia", dressCode: "Smart Casual", gallery: ["https://loremflickr.com/600/400/restaurant,interior?lock=121", "https://loremflickr.com/600/400/meat?lock=122"] },
+                    { time: "04:00 PM", title: "Gothic Quarter", desc: "Walk off the jet lag exploring medieval streets.", img: "https://loremflickr.com/400/300/gothic,architecture?lock=13",
+                      fullDesc: "Navigate the narrow, winding labyrinth of the Barri Gòtic. You'll see Roman ruins mixed with massive cathedrals and hidden plazas.", location: "Barri Gòtic", dressCode: "Comfortable Walking Shoes", gallery: ["https://loremflickr.com/600/400/spain,street?lock=131", "https://loremflickr.com/600/400/cathedral?lock=132"] },
+                    { time: "09:00 PM", title: "Can Paixano", desc: "Loud, chaotic standing-room tapas and Cava.", img: "https://loremflickr.com/400/300/wine,crowd?lock=14",
+                      fullDesc: "Also known as La Xampanyeria. Prepare to stand shoulder-to-shoulder with locals. Order plates of jamón, chorizo, and cheap bottles of sparkling rosé.", location: "Barceloneta Edge", dressCode: "Casual (It gets messy)", gallery: ["https://loremflickr.com/600/400/cava?lock=141", "https://loremflickr.com/600/400/jamon?lock=142"] }
                 ]
             },
             {
                 day: 2, date: "JULY 14", city: "Barcelona", theme: "Gaudí & The Clubs",
-                heroImg: "https://loremflickr.com/600/600/sagradafamilia",
+                heroImg: "https://loremflickr.com/600/800/sagradafamilia?lock=201",
                 events: [
-                    { time: "09:30 AM", title: "Sagrada Família", desc: "VIP skip-the-line tour before the July heat peaks.", img: "https://loremflickr.com/400/200/church,gaudi" },
-                    { time: "02:00 PM", title: "Ciutat Comtal", desc: "Insanely popular premium tapas. Worth the wait.", img: "https://loremflickr.com/400/200/food,tapas" },
-                    { time: "05:00 PM", title: "Park Güell", desc: "Panoramic sunset views of the city skyline.", img: "https://loremflickr.com/400/200/parkguell" },
-                    { time: "10:00 PM", title: "El Born & Guzzo", desc: "Live jazz and street art vibe, transitioning to the mega clubs.", img: "https://loremflickr.com/400/200/nightclub,neon" }
+                    { time: "09:30 AM", title: "Sagrada Família", desc: "VIP skip-the-line tour before the July heat peaks.", img: "https://loremflickr.com/400/300/gaudi,church?lock=21",
+                      fullDesc: "Book the VIP early access. Walking into the nave of Gaudí's unfinished masterpiece with the morning sun hitting the stained glass is mind-blowing.", location: "Carrer de Mallorca", dressCode: "Respectful / Casual", gallery: ["https://loremflickr.com/600/400/stainedglass?lock=211", "https://loremflickr.com/600/400/architecture?lock=212"] },
+                    { time: "02:00 PM", title: "Ciutat Comtal", desc: "Insanely popular premium local tapas.", img: "https://loremflickr.com/400/300/tapas?lock=22",
+                      fullDesc: "There will be a wait, but it is the best classic tapas experience in the city center. Get the patatas bravas, garlic prawns, and honey-glazed cod.", location: "Rambla de Catalunya", dressCode: "Casual", gallery: ["https://loremflickr.com/600/400/food,shrimp?lock=221", "https://loremflickr.com/600/400/beer?lock=222"] },
+                    { time: "05:00 PM", title: "Park Güell", desc: "Taxi up the hill for panoramic mosaics and views.", img: "https://loremflickr.com/400/300/parkguell?lock=23",
+                      fullDesc: "Head to Carmel Hill. You'll walk through Gaudí's colorful mosaic terraces overlooking the entire Barcelona skyline right before golden hour.", location: "Carmel Hill", dressCode: "Casual / Sunglasses", gallery: ["https://loremflickr.com/600/400/mosaic?lock=231", "https://loremflickr.com/600/400/view,city?lock=232"] },
+                    { time: "10:00 PM", title: "Guzzo & Nightlife", desc: "Street art vibe dinner leading to late-night clubs.", img: "https://loremflickr.com/400/300/neon,club?lock=24",
+                      fullDesc: "Start with heavy meats and live jazz at Guzzo in the El Born district. Around 1 AM, transition to a mega-club like Razzmatazz.", location: "El Born / Poblenou", dressCode: "Nightlife Sharp", gallery: ["https://loremflickr.com/600/400/cocktail?lock=241", "https://loremflickr.com/600/400/dj?lock=242"] }
                 ]
             },
-            // Fast forwarding through some days to keep code manageable, but showing key transitions
             {
                 day: 3, date: "JULY 15", city: "Barcelona", theme: "Coastal Recovery",
-                heroImg: "https://loremflickr.com/600/600/beach,barcelona",
+                heroImg: "https://loremflickr.com/600/800/beach,barcelona?lock=301",
                 events: [
-                    { time: "11:00 AM", title: "Casa Batlló", desc: "Stroll Passeig de Gràcia for luxury architecture.", img: "https://loremflickr.com/400/200/architecture,spain" },
-                    { time: "01:00 PM", title: "Mercat de la Boqueria", desc: "Iberian ham cones and fresh fruit on the go.", img: "https://loremflickr.com/400/200/market,food" },
-                    { time: "03:00 PM", title: "Barceloneta Beach", desc: "Beach club loungers and Mediterranean recovery.", img: "https://loremflickr.com/400/200/beach,lounge" },
-                    { time: "09:30 PM", title: "Can Solé", desc: "Legendary seafood restaurant for authentic high-end paella.", img: "https://loremflickr.com/400/200/paella,seafood" }
+                    { time: "11:00 AM", title: "Casa Batlló", desc: "Walk Passeig de Gràcia for luxury facades.", img: "https://loremflickr.com/400/300/casabatllo?lock=31",
+                      fullDesc: "Sleep in. Grab premium coffee and walk down Passeig de Gràcia to view the famous skeletal balconies of Gaudí's Casa Batlló from the outside.", location: "Passeig de Gràcia", dressCode: "Relaxed", gallery: ["https://loremflickr.com/600/400/building?lock=311", "https://loremflickr.com/600/400/coffee?lock=312"] },
+                    { time: "01:00 PM", title: "Mercat de la Boqueria", desc: "Grab fresh Iberian ham and fruit on the go.", img: "https://loremflickr.com/400/300/market,food?lock=32",
+                      fullDesc: "Walk through Europe's most famous food market. Grab a paper cone of premium jamón ibérico and fresh fruit smoothies for a walking lunch.", location: "La Rambla", dressCode: "Casual", gallery: ["https://loremflickr.com/600/400/market?lock=321", "https://loremflickr.com/600/400/fruit?lock=322"] },
+                    { time: "03:00 PM", title: "Barceloneta Beach", desc: "Rent loungers and recover by the sea.", img: "https://loremflickr.com/400/300/beach,lounge?lock=33",
+                      fullDesc: "Rent umbrellas and beach chairs at a waterfront club. Drink cold beers, swim in the Mediterranean, and recover from the previous night.", location: "Barceloneta", dressCode: "Swimwear / Beach", gallery: ["https://loremflickr.com/600/400/ocean?lock=331", "https://loremflickr.com/600/400/sand?lock=332"] },
+                    { time: "09:30 PM", title: "Can Solé", desc: "Legendary seafood & authentic high-end paella.", img: "https://loremflickr.com/400/300/paella?lock=34",
+                      fullDesc: "Hidden in the fisherman's quarter since 1903. This is where you get massive pans of authentic, rich, seafood paella.", location: "Barceloneta", dressCode: "Smart Casual", gallery: ["https://loremflickr.com/600/400/seafood?lock=341", "https://loremflickr.com/600/400/restaurant?lock=342"] }
+                ]
+            },
+            {
+                day: 4, date: "JULY 16", city: "Barcelona", theme: "Scooters & The Waterfront",
+                heroImg: "https://loremflickr.com/600/800/scooter,city?lock=401",
+                events: [
+                    { time: "11:30 AM", title: "Carrer d'Enric Granados", desc: "Explore the leafy, pedestrian cafe streets.", img: "https://loremflickr.com/400/300/cafe,street?lock=41",
+                      fullDesc: "Start the day slow on Eixample's best cafe street. Sit on an outdoor terrace for a massive brunch and specialty coffee.", location: "L'Esquerra de l'Eixample", dressCode: "Daytime Casual", gallery: ["https://loremflickr.com/600/400/brunch?lock=411", "https://loremflickr.com/600/400/terrace?lock=412"] },
+                    { time: "02:00 PM", title: "Makamaka", desc: "Killer burgers and a loud beachside vibe.", img: "https://loremflickr.com/400/300/burger?lock=42",
+                      fullDesc: "A chaotic, fun, surfer-style joint right near the port. Massive burgers, fries, and pitchers to fuel up for the afternoon.", location: "Passeig Joan de Borbó", dressCode: "Casual", gallery: ["https://loremflickr.com/600/400/fries?lock=421", "https://loremflickr.com/600/400/beer?lock=422"] },
+                    { time: "04:30 PM", title: "Port Olímpic", desc: "Rent electric scooters and ride the coast.", img: "https://loremflickr.com/400/300/coast,scooter?lock=43",
+                      fullDesc: "Grab Lime or Tier electric scooters and blast down the wide waterfront paths past the yachts at Port Olímpic.", location: "The Coastline", dressCode: "Active Casual", gallery: ["https://loremflickr.com/600/400/yacht?lock=431", "https://loremflickr.com/600/400/ocean?lock=432"] },
+                    { time: "10:30 PM", title: "Koku Kitchen & Opium", desc: "Hearty ramen before a massive waterfront club night.", img: "https://loremflickr.com/400/300/nightclub?lock=44",
+                      fullDesc: "Load up on Japanese ramen/baos at Koku Kitchen, then hit Opium or Pacha right on the beach. Expect VIP tables and heavy bass until 5 AM.", location: "El Born / Port Olímpic", dressCode: "Upscale Clubwear", gallery: ["https://loremflickr.com/600/400/ramen?lock=441", "https://loremflickr.com/600/400/party?lock=442"] }
                 ]
             },
             {
                 day: 5, date: "JULY 17", city: "Paris", theme: "The 24-Hour Sprint",
-                heroImg: "https://loremflickr.com/600/600/paris,eiffel",
+                heroImg: "https://loremflickr.com/600/800/paris,eiffel?lock=501",
                 events: [
-                    { time: "08:00 AM", title: "Flight to Paris", desc: "Early flight. Check into the central Le Marais flat.", img: "https://loremflickr.com/400/200/paris,street" },
-                    { time: "01:30 PM", title: "L'As du Fallafel", desc: "Massive street pitas in the heart of Le Marais.", img: "https://loremflickr.com/400/200/falafel,food" },
-                    { time: "04:00 PM", title: "Eiffel Tower", desc: "Summit access. Overlooking the entire French capital.", img: "https://loremflickr.com/400/200/eiffeltower" },
-                    { time: "08:30 PM", title: "Le Train Bleu", desc: "High-end dinner in a gilded, historic palace restaurant.", img: "https://loremflickr.com/400/200/dining,luxury" }
+                    { time: "08:00 AM", title: "Flight to Paris", desc: "Vueling flight from BCN. Drop bags in Le Marais.", img: "https://loremflickr.com/400/300/paris,street?lock=51",
+                      fullDesc: "A quick 2-hour morning flight. Take an Uber from Orly/CDG directly to your flat in Le Marais, the most stylish and walkable district in Paris.", location: "Le Marais", dressCode: "Travel Wear", gallery: ["https://loremflickr.com/600/400/airport?lock=511", "https://loremflickr.com/600/400/apartment?lock=512"] },
+                    { time: "01:30 PM", title: "L'As du Fallafel", desc: "Massive street food pitas in Le Marais.", img: "https://loremflickr.com/400/300/falafel?lock=52",
+                      fullDesc: "The undisputed king of Parisian street food. Expect a line, but it moves fast. Order the special sandwich loaded with eggplant, hummus, and hot sauce.", location: "Rue des Rosiers", dressCode: "Casual", gallery: ["https://loremflickr.com/600/400/pita?lock=521", "https://loremflickr.com/600/400/streetfood?lock=522"] },
+                    { time: "04:00 PM", title: "Eiffel Tower", desc: "Summit access overlooking the capital.", img: "https://loremflickr.com/400/300/eiffeltower?lock=53",
+                      fullDesc: "Use your pre-booked tickets to ride the elevators to the summit. Afterwards, walk down the iconic Champs-Élysées towards the Arc de Triomphe.", location: "Champ de Mars", dressCode: "Comfortable", gallery: ["https://loremflickr.com/600/400/paris,view?lock=531", "https://loremflickr.com/600/400/arcdetriomphe?lock=532"] },
+                    { time: "08:30 PM", title: "Le Train Bleu", desc: "Dinner in a historic, gilded palace restaurant.", img: "https://loremflickr.com/400/300/dining,luxury?lock=54",
+                      fullDesc: "Located inside Gare de Lyon. You will eat classic French food surrounded by gold-leaf ceilings, massive chandeliers, and frescoes. A true Parisian flex.", location: "Gare de Lyon", dressCode: "Smart / Elegant", gallery: ["https://loremflickr.com/600/400/chandelier?lock=541", "https://loremflickr.com/600/400/frenchfood?lock=542"] }
                 ]
             },
             {
-                day: 6, date: "JULY 18", city: "Nice", theme: "TGV to the Riviera",
-                heroImg: "https://loremflickr.com/600/600/nice,france",
+                day: 6, date: "JULY 18", city: "Nice", theme: "First Class to the Riviera",
+                heroImg: "https://loremflickr.com/600/800/nice,france?lock=601",
                 events: [
-                    { time: "09:00 AM", title: "TGV First Class", desc: "Board the 'Carré' 4-person train pod heading south at 300km/h.", img: "https://loremflickr.com/400/200/train,highspeed" },
-                    { time: "12:30 PM", title: "Train Picnic", desc: "Baguettes and meats from Paris eaten on the train.", img: "https://loremflickr.com/400/200/baguette,cheese" },
-                    { time: "03:30 PM", title: "Promenade des Anglais", desc: "Drop bags and walk the iconic blue coastline of Nice.", img: "https://loremflickr.com/400/200/coastline,promenade" },
-                    { time: "08:30 PM", title: "La Petite Maison", desc: "The defining glamorous dining spot of the French Riviera.", img: "https://loremflickr.com/400/200/restaurant,elegant" }
+                    { time: "09:00 AM", title: "TGV High-Speed Train", desc: "Board the 1st Class 'Carré' heading south at 300km/h.", img: "https://loremflickr.com/400/300/train,highspeed?lock=61",
+                      fullDesc: "Depart from Gare de Lyon. The 'Carré' is a private pod of four massive seats facing a central table. The scenery transitions from countryside to coastline.", location: "Gare de Lyon to Nice-Ville", dressCode: "Comfortable", gallery: ["https://loremflickr.com/600/400/train,interior?lock=611", "https://loremflickr.com/600/400/scenery?lock=612"] },
+                    { time: "12:30 PM", title: "Train Picnic", desc: "Baguettes, cheese, and meats eaten at your table.", img: "https://loremflickr.com/400/300/baguette,cheese?lock=62",
+                      fullDesc: "Before boarding in Paris, hit a bakery. Build a massive spread on your train table. It's the ultimate hack for a cheap but luxurious group lunch.", location: "TGV First Class", dressCode: "Relaxed", gallery: ["https://loremflickr.com/600/400/picnic?lock=621", "https://loremflickr.com/600/400/charcuterie?lock=622"] },
+                    { time: "03:30 PM", title: "Promenade des Anglais", desc: "Arrive in Nice and walk the iconic blue coastline.", img: "https://loremflickr.com/400/300/coastline,promenade?lock=63",
+                      fullDesc: "Drop your bags and step out onto the pebble beaches of Nice. Explore the narrow, vibrant streets of Vieux Nice (Old Town) as the sun sets.", location: "Vieux Nice", dressCode: "Riviera Casual", gallery: ["https://loremflickr.com/600/400/beach,nice?lock=631", "https://loremflickr.com/600/400/oldtown?lock=632"] },
+                    { time: "08:30 PM", title: "La Petite Maison", desc: "The glamorous dining spot of the French Riviera.", img: "https://loremflickr.com/400/300/restaurant,elegant?lock=64",
+                      fullDesc: "This is where celebrities and locals eat. Expect live music, incredible Niçoise Mediterranean food, and an extremely high-energy atmosphere.", location: "Vieux Nice", dressCode: "Sharp / Upscale", gallery: ["https://loremflickr.com/600/400/mediterranean,food?lock=641", "https://loremflickr.com/600/400/wine?lock=642"] }
                 ]
             },
             {
-                day: 10, date: "JULY 22", city: "Amalfi Coast", theme: "The A2 Autostrada",
-                heroImg: "https://loremflickr.com/600/600/amalficoast",
+                day: 7, date: "JULY 19", city: "Marseille", theme: "Coastal Driving Dynamics",
+                heroImg: "https://loremflickr.com/600/800/marseille,port?lock=701",
                 events: [
-                    { time: "09:00 AM", title: "Messina Car Ferry", desc: "Roll the rental car onto the boat for the 20-min crossing.", img: "https://loremflickr.com/400/200/ferry,boat" },
-                    { time: "12:00 PM", title: "Ferry Espresso", desc: "Quick coffee and sandwiches on the deck.", img: "https://loremflickr.com/400/200/espresso,coffee" },
-                    { time: "02:00 PM", title: "The Great Drive", desc: "Blasting up the Calabrian mountains to Sorrento.", img: "https://loremflickr.com/400/200/highway,driving" },
-                    { time: "08:30 PM", title: "Da Michele Pizza", desc: "World-class Neapolitan pizza to celebrate arriving.", img: "https://loremflickr.com/400/200/pizza,neapolitan" }
+                    { time: "10:00 AM", title: "Rent the SUV", desc: "Pick up the wagon/SUV from SIXT Nice.", img: "https://loremflickr.com/400/300/car,suv?lock=71",
+                      fullDesc: "Secure your Standard Estate/Wagon (like a Peugeot 308 SW or Skoda) from SIXT to fit the 4 guys and luggage, preparing for the drive.", location: "SIXT Nice", dressCode: "Casual", gallery: ["https://loremflickr.com/600/400/keys?lock=711", "https://loremflickr.com/600/400/steeringwheel?lock=712"] },
+                    { time: "01:00 PM", title: "Bocca Mar", desc: "Upscale beach club right on the Nice water.", img: "https://loremflickr.com/400/300/beachclub?lock=72",
+                      fullDesc: "Before hitting the road, have a trendy Mediterranean lunch right on the pebbles. Great music and views of the sea.", location: "Nice Coast", dressCode: "Summer Casual", gallery: ["https://loremflickr.com/600/400/lunch?lock=721", "https://loremflickr.com/600/400/ocean?lock=722"] },
+                    { time: "04:00 PM", title: "The Coastal Route", desc: "Drive to Marseille and hike Notre-Dame de la Garde.", img: "https://loremflickr.com/400/300/highway,driving?lock=73",
+                      fullDesc: "Take the scenic, winding coastal roads westward. Arrive in the gritty, beautiful city of Marseille and drive up to the basilica for 360-degree views.", location: "Marseille", dressCode: "Driving Casual", gallery: ["https://loremflickr.com/600/400/basilica?lock=731", "https://loremflickr.com/600/400/marseille,view?lock=732"] },
+                    { time: "08:30 PM", title: "Chez Fonfon", desc: "The world's best authentic Bouillabaisse.", img: "https://loremflickr.com/400/300/soup,seafood?lock=74",
+                      fullDesc: "Located in a tiny, picturesque harbor (Vallon des Auffes). You cannot leave France without eating this massive, multi-course fish stew.", location: "Vallon des Auffes", dressCode: "Smart Casual", gallery: ["https://loremflickr.com/600/400/harbor?lock=741", "https://loremflickr.com/600/400/fish?lock=742"] }
+                ]
+            },
+            {
+                day: 8, date: "JULY 20", city: "Sicily", theme: "Arrival in Taormina",
+                heroImg: "https://loremflickr.com/600/800/taormina?lock=801",
+                events: [
+                    { time: "09:00 AM", title: "Flight to Catania", desc: "Direct flight. Pick up the Italian rental car.", img: "https://loremflickr.com/400/300/italy,airport?lock=81",
+                      fullDesc: "Drop the French car at MRS, fly direct to Catania (CTA) via Ryanair. Pick up your next Estate/Wagon and drive 1 hour north up the coast to Taormina.", location: "Catania to Taormina", dressCode: "Travel", gallery: ["https://loremflickr.com/600/400/driving,italy?lock=811", "https://loremflickr.com/600/400/sicily,coast?lock=812"] },
+                    { time: "01:30 PM", title: "Street Food Arancini", desc: "Grab authentic Sicilian snacks on the go.", img: "https://loremflickr.com/400/300/arancini?lock=82",
+                      fullDesc: "Find a local rosticceria. Order massive, deep-fried rice balls stuffed with ragù and mozzarella. Cheap, heavy, and incredible.", location: "Taormina Center", dressCode: "Casual", gallery: ["https://loremflickr.com/600/400/streetfood,italy?lock=821", "https://loremflickr.com/600/400/bakery?lock=822"] },
+                    { time: "04:00 PM", title: "Ancient Greek Theatre", desc: "Ruins framing the Mt. Etna volcano.", img: "https://loremflickr.com/400/300/ruins,sicily?lock=83",
+                      fullDesc: "Walk through the spectacularly preserved amphitheater. The backdrop is the smoking cone of Mount Etna and the blue Ionian sea.", location: "Teatro Antico di Taormina", dressCode: "Casual / Sunscreen", gallery: ["https://loremflickr.com/600/400/volcano?lock=831", "https://loremflickr.com/600/400/theatre?lock=832"] },
+                    { time: "09:00 PM", title: "Osteria RossoDiVino", desc: "Hidden courtyard premium seafood.", img: "https://loremflickr.com/400/300/seafood,pasta?lock=84",
+                      fullDesc: "Tucked into a quiet alleyway. Order the crudo and fresh catch of the day. Afterwards, hit Morgana Lounge Bar for high-end cocktails.", location: "Vico M. De Spuches", dressCode: "Smart Casual", gallery: ["https://loremflickr.com/600/400/wine,glass?lock=841", "https://loremflickr.com/600/400/cocktail,lounge?lock=842"] }
+                ]
+            },
+            {
+                day: 9, date: "JULY 21", city: "Sicily", theme: "The Volcano & Recovery",
+                heroImg: "https://loremflickr.com/600/800/etna,volcano?lock=901",
+                events: [
+                    { time: "08:30 AM", title: "Mt. Etna Jeep Tour", desc: "Guided 4x4 tour up the rugged volcanic slopes.", img: "https://loremflickr.com/400/300/jeep,mountain?lock=91",
+                      fullDesc: "Leave the rental car. A guide takes you off-road up Europe's most active volcano. You'll hike around craters and walk through lava tubes.", location: "Mount Etna South", dressCode: "Rugged / Layers (It gets cold)", gallery: ["https://loremflickr.com/600/400/crater?lock=911", "https://loremflickr.com/600/400/hiking?lock=912"] },
+                    { time: "01:30 PM", title: "Mountain Trattoria", desc: "Rustic pasta in a wooden cabin.", img: "https://loremflickr.com/400/300/pasta,rustic?lock=92",
+                      fullDesc: "Stop at a local chalet on the way down the volcano for heavy, rustic Sicilian pasta like Maccheroni alla Norma.", location: "Etna Slopes", dressCode: "Casual", gallery: ["https://loremflickr.com/600/400/cheese?lock=921", "https://loremflickr.com/600/400/cabin?lock=922"] },
+                    { time: "04:30 PM", title: "Coastal Recovery", desc: "Relax by the water in Giardini Naxos.", img: "https://loremflickr.com/400/300/sicily,beach?lock=93",
+                      fullDesc: "Head down to the beach towns below Taormina to rest your legs by the water before the massive drive tomorrow.", location: "Giardini Naxos", dressCode: "Swimwear", gallery: ["https://loremflickr.com/600/400/sun?lock=931", "https://loremflickr.com/600/400/water?lock=932"] },
+                    { time: "09:00 PM", title: "Tischi Toschi", desc: "Authentic, heavy, unpretentious dining.", img: "https://loremflickr.com/400/300/dining,italy?lock=94",
+                      fullDesc: "No luxury fuss here—just pure, traditional Sicilian cooking in a relaxed courtyard. Get the slow-cooked meats and caponata.", location: "Taormina", dressCode: "Casual", gallery: ["https://loremflickr.com/600/400/meat,stew?lock=941", "https://loremflickr.com/600/400/table?lock=942"] }
+                ]
+            },
+            {
+                day: 10, date: "JULY 22", city: "Amalfi Coast", theme: "The Great Northern Drive",
+                heroImg: "https://loremflickr.com/600/800/amalficoast?lock=1001",
+                events: [
+                    { time: "09:00 AM", title: "Messina Car Ferry", desc: "Roll the car onto the 20-min crossing boat.", img: "https://loremflickr.com/400/300/ferry,boat?lock=101",
+                      fullDesc: "Drive to Messina, pay the toll booth, and park the car on the lower deck. You are leaving Sicily and crossing the strait into mainland Italy.", location: "Port of Messina", dressCode: "Travel", gallery: ["https://loremflickr.com/600/400/deck?lock=1011", "https://loremflickr.com/600/400/ocean?lock=1012"] },
+                    { time: "12:00 PM", title: "Ferry Espresso", desc: "Quick coffee and sandwiches on the deck.", img: "https://loremflickr.com/400/300/espresso,coffee?lock=102",
+                      fullDesc: "Walk up to the top deck, order standing espressos, and watch the Calabrian coast approach. It's a perfect 20-minute break from driving.", location: "Ferry Top Deck", dressCode: "Casual", gallery: ["https://loremflickr.com/600/400/coffee,bar?lock=1021", "https://loremflickr.com/600/400/view,sea?lock=1022"] },
+                    { time: "02:00 PM", title: "The A2 Autostrada", desc: "Blast up the Calabrian mountain highways.", img: "https://loremflickr.com/400/300/highway,driving?lock=103",
+                      fullDesc: "A 4 to 5 hour powerhouse drive straight up the boot of Italy. Massive bridges, mountain tunnels, and sweeping curves. Arrive at your Sorrento base by late afternoon.", location: "A2 Highway", dressCode: "Driving Casual", gallery: ["https://loremflickr.com/600/400/road?lock=1031", "https://loremflickr.com/600/400/mountains?lock=1032"] },
+                    { time: "08:30 PM", title: "Da Michele Pizza", desc: "World-class Neapolitan pizza.", img: "https://loremflickr.com/400/300/pizza,neapolitan?lock=104",
+                      fullDesc: "Drop the bags and get pizza. Neapolitans treat dough hydration and rapid-fire wood oven times like a religion. It will be the best pizza of your life.", location: "Naples / Sorrento Area", dressCode: "Casual", gallery: ["https://loremflickr.com/600/400/pizza,oven?lock=1041", "https://loremflickr.com/600/400/dough?lock=1042"] }
                 ]
             },
             {
                 day: 11, date: "JULY 23", city: "Capri", theme: "The Boat Charter",
-                heroImg: "https://loremflickr.com/600/600/capri,yacht",
+                heroImg: "https://loremflickr.com/600/800/capri,yacht?lock=1101",
                 events: [
-                    { time: "09:30 AM", title: "Private Motorboat", desc: "Skipper picks the crew up from Sorrento marina.", img: "https://loremflickr.com/400/200/speedboat,ocean" },
-                    { time: "01:30 PM", title: "La Fontelina", desc: "Exclusive beach club lunch tucked into the Capri rocks.", img: "https://loremflickr.com/400/200/beachclub,umbrellas" },
-                    { time: "04:00 PM", title: "Cliff Jumping", desc: "Cruising the Faraglioni rocks and dropping anchor.", img: "https://loremflickr.com/400/200/cliffs,sea" },
-                    { time: "09:00 PM", title: "Sorrento Nightlife", desc: "Drinks and high energy at Fauno Notte Club.", img: "https://loremflickr.com/400/200/cocktails,night" }
+                    { time: "09:30 AM", title: "Private Motorboat", desc: "Skipper picks you up from the Sorrento marina.", img: "https://loremflickr.com/400/300/speedboat,ocean?lock=111",
+                      fullDesc: "Deploy the budget. Board your 35ft charter. The skipper handles the navigation, opening up the throttle as you cross the bay toward the island of Capri.", location: "Sorrento Marina", dressCode: "Swimwear / Boat Attire", gallery: ["https://loremflickr.com/600/400/yacht,deck?lock=1111", "https://loremflickr.com/600/400/water?lock=1112"] },
+                    { time: "01:30 PM", title: "La Fontelina", desc: "Exclusive beach club lunch tucked into the rocks.", img: "https://loremflickr.com/400/300/beachclub,umbrellas?lock=112",
+                      fullDesc: "Have the skipper drop you directly at the dock of this iconic beach club. Eat premium seafood pasta under the blue umbrellas directly on the cliffs.", location: "Capri Coast", dressCode: "Chic Beachwear", gallery: ["https://loremflickr.com/600/400/pasta,seafood?lock=1121", "https://loremflickr.com/600/400/wine,ice?lock=1122"] },
+                    { time: "04:00 PM", title: "The Faraglioni", desc: "Cruising rock formations and cliff jumping.", img: "https://loremflickr.com/400/300/cliffs,sea?lock=113",
+                      fullDesc: "Get back on the boat. Cruise directly through the archway of the famous Faraglioni rocks. Find a private cove to drop anchor, drink Prosecco, and cliff jump.", location: "Mediterranean Sea", dressCode: "Swimwear", gallery: ["https://loremflickr.com/600/400/rocks,ocean?lock=1131", "https://loremflickr.com/600/400/jumping?lock=1132"] },
+                    { time: "09:00 PM", title: "Sorrento Nightlife", desc: "Drinks and high energy at Fauno Notte Club.", img: "https://loremflickr.com/400/300/cocktails,night?lock=114",
+                      fullDesc: "Return to the mainland. Grab dinner in the lively Piazza Tasso, then hit Sorrento's underground club, Fauno Notte, to cap off an epic day.", location: "Piazza Tasso", dressCode: "Nightlife Sharp", gallery: ["https://loremflickr.com/600/400/club,neon?lock=1141", "https://loremflickr.com/600/400/drinks?lock=1142"] }
+                ]
+            },
+            {
+                day: 12, date: "JULY 24", city: "Rome", theme: "Underground History",
+                heroImg: "https://loremflickr.com/600/800/rome,colosseum?lock=1201",
+                events: [
+                    { time: "08:00 AM", title: "Drive to Rome", desc: "3.5 hours north. Drop the car at Termini.", img: "https://loremflickr.com/400/300/rome,street?lock=121",
+                      fullDesc: "Wake up early and drive the Autostrada north to Rome. Drop the rental car off immediately at Termini Station—you do not want to navigate Roman city traffic.", location: "Rome Termini", dressCode: "Travel", gallery: ["https://loremflickr.com/600/400/trainstation?lock=1211", "https://loremflickr.com/600/400/car,keys?lock=1212"] },
+                    { time: "01:30 PM", title: "Artisanal Panino", desc: "Grab premium street sandwiches near the ruins.", img: "https://loremflickr.com/400/300/sandwich,italy?lock=122",
+                      fullDesc: "Find a local deli (salumeria) making fresh schiacciata sandwiches stuffed with porchetta, stracciatella cheese, and pistachio cream.", location: "Centro Storico", dressCode: "Casual", gallery: ["https://loremflickr.com/600/400/deli?lock=1221", "https://loremflickr.com/600/400/bread?lock=1222"] },
+                    { time: "03:00 PM", title: "The Colosseum", desc: "VIP underground tour of the Roman Forum.", img: "https://loremflickr.com/400/300/colosseum,inside?lock=123",
+                      fullDesc: "Take the pre-booked VIP tour that gives you access to the underground gladiator tunnels and the arena floor, followed by a walk up Palatine Hill.", location: "Piazza del Colosseo", dressCode: "Walking Shoes", gallery: ["https://loremflickr.com/600/400/ruins?lock=1231", "https://loremflickr.com/600/400/gladiator?lock=1232"] },
+                    { time: "09:00 PM", title: "Da Enzo al 29", desc: "The heaviest Carbonara in Trastevere.", img: "https://loremflickr.com/400/300/pasta,carbonara?lock=124",
+                      fullDesc: "Cross the river to Trastevere. Expect a wait in the alleyway, but it is the most legendary, heavy, authentic pasta in the city. Spend the night bar-hopping the cobblestones.", location: "Trastevere", dressCode: "Casual", gallery: ["https://loremflickr.com/600/400/wine,red?lock=1241", "https://loremflickr.com/600/400/street,night?lock=1242"] }
                 ]
             },
             {
                 day: 13, date: "JULY 25", city: "Rome", theme: "Vatican & Carnivores",
-                heroImg: "https://loremflickr.com/600/600/rome,vatican",
+                heroImg: "https://loremflickr.com/600/800/rome,vatican?lock=1301",
                 events: [
-                    { time: "08:00 AM", title: "Vatican Museums", desc: "VIP early access to beat the heat and crowds.", img: "https://loremflickr.com/400/200/vatican,art" },
-                    { time: "01:30 PM", title: "Armando al Pantheon", desc: "Premium sit-down lunch next to ancient history.", img: "https://loremflickr.com/400/200/pasta,wine" },
-                    { time: "04:00 PM", title: "Trevi Fountain", desc: "Toss a coin and hit the luxury shops on Via Condotti.", img: "https://loremflickr.com/400/200/trevifountain" },
-                    { time: "09:00 PM", title: "Macelleria Bifulco", desc: "The ultimate splurge. High-end dry-aged Roman steakhouse.", img: "https://loremflickr.com/400/200/steak,meat" }
+                    { time: "08:00 AM", title: "Vatican Museums", desc: "VIP early access to beat the heat and crowds.", img: "https://loremflickr.com/400/300/vatican,art?lock=131",
+                      fullDesc: "You must do this early. Walk the Gallery of Maps and stand in the Sistine Chapel before the massive tour bus groups arrive at 10 AM.", location: "Vatican City", dressCode: "Knees & Shoulders Covered", gallery: ["https://loremflickr.com/600/400/ceiling,art?lock=1311", "https://loremflickr.com/600/400/statue?lock=1312"] },
+                    { time: "01:30 PM", title: "Armando al Pantheon", desc: "Premium sit-down lunch next to ancient history.", img: "https://loremflickr.com/400/300/pasta,wine?lock=132",
+                      fullDesc: "A historic, upscale spot literally steps from the Pantheon. Get the spaghetti alla gricia and a heavy bottle of local red wine.", location: "Pantheon Area", dressCode: "Smart Casual", gallery: ["https://loremflickr.com/600/400/pantheon?lock=1321", "https://loremflickr.com/600/400/restaurant,rome?lock=1322"] },
+                    { time: "04:00 PM", title: "Trevi Fountain", desc: "Toss a coin and hit the luxury shops.", img: "https://loremflickr.com/400/300/trevifountain?lock=133",
+                      fullDesc: "Fight the crowds to toss a coin in the Trevi Fountain (guaranteeing your return to Rome). Spend the afternoon shopping the luxury boutiques on Via Condotti.", location: "Trevi District", dressCode: "Stylish", gallery: ["https://loremflickr.com/600/400/shopping?lock=1331", "https://loremflickr.com/600/400/fountain?lock=1332"] },
+                    { time: "09:00 PM", title: "Macelleria Bifulco", desc: "High-end dry-aged Roman steakhouse splurge.", img: "https://loremflickr.com/400/300/steak,meat?lock=134",
+                      fullDesc: "Skip the pasta tonight. This is a serious carnivore experience. The kitchen treats dry-aging, salting, and fire-roasting like an absolute science. A massive finale dinner.", location: "Via Ostiense", dressCode: "Upscale", gallery: ["https://loremflickr.com/600/400/grill,fire?lock=1341", "https://loremflickr.com/600/400/wine,steak?lock=1342"] }
+                ]
+            },
+            {
+                day: 14, date: "JULY 26", city: "Departure", theme: "The Journey Home",
+                heroImg: "https://loremflickr.com/600/800/airplane,window?lock=1401",
+                events: [
+                    { time: "09:00 AM", title: "Final Espresso", desc: "Stand at a local cafe counter for high-grade coffee.", img: "https://loremflickr.com/400/300/espresso,bar?lock=141",
+                      fullDesc: "Do it like a true Roman. Walk into a bar, throw €1.50 on the counter, and drink a perfectly pulled shot of espresso standing up.", location: "Centro Storico", dressCode: "Travel Casual", gallery: ["https://loremflickr.com/600/400/coffee,beans?lock=1411", "https://loremflickr.com/600/400/barista?lock=1412"] },
+                    { time: "11:30 AM", title: "Leonardo Express", desc: "Direct 30-min train to the airport.", img: "https://loremflickr.com/400/300/train,rome?lock=142",
+                      fullDesc: "Head back to Termini Station and catch the dedicated high-speed Leonardo Express train. It shoots you straight into the FCO terminals.", location: "Termini to FCO", dressCode: "Travel", gallery: ["https://loremflickr.com/600/400/platform?lock=1421", "https://loremflickr.com/600/400/luggage?lock=1422"] },
+                    { time: "01:00 PM", title: "Airport Lounge", desc: "Relax and eat in the premium lounge.", img: "https://loremflickr.com/400/300/airport,lounge?lock=143",
+                      fullDesc: "Clear security and hit the Plaza Premium or airline lounge. Grab a final glass of wine and some hot food before boarding.", location: "FCO Airport", dressCode: "Travel", gallery: ["https://loremflickr.com/600/400/lounge,seating?lock=1431", "https://loremflickr.com/600/400/food,buffet?lock=1432"] },
+                    { time: "03:00 PM", title: "Back to Abu Dhabi", desc: "Board the direct 6-hour flight home.", img: "https://loremflickr.com/400/300/airplane,sky?lock=144",
+                      fullDesc: "Board the direct Etihad or Wizz Air flight back to AUH. The 14-day sprint is officially complete.", location: "In the Air", dressCode: "Comfortable", gallery: ["https://loremflickr.com/600/400/clouds?lock=1441", "https://loremflickr.com/600/400/flight?lock=1442"] }
                 ]
             }
         ];
 
+        // DOM Elements
         const dayNav = document.getElementById('dayNav');
         const appBody = document.getElementById('appBody');
+        const modal = document.getElementById('detailModal');
+        const contentScroll = document.getElementById('contentScroll');
 
+        // Init App
+        function init() {
+            renderNav();
+            selectDay(0);
+        }
+
+        // Render Top Navigation
         function renderNav() {
             itinerary.forEach((data, index) => {
                 const pill = document.createElement('div');
-                pill.className = `day-pill ${index === 0 ? 'active' : ''}`;
+                pill.className = `day-pill`;
                 pill.innerText = `Day ${data.day}`;
                 pill.onclick = () => selectDay(index, pill);
                 dayNav.appendChild(pill);
             });
         }
 
-        function selectDay(index, clickedPill) {
-            // Update active pill
-            document.querySelectorAll('.day-pill').forEach(p => p.classList.remove('active'));
-            clickedPill.classList.add('active');
+        // Handle Day Selection
+        function selectDay(index, clickedPill = null) {
+            const pills = document.querySelectorAll('.day-pill');
+            pills.forEach(p => p.classList.remove('active'));
             
-            // Scroll nav to center the clicked pill
-            clickedPill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            const targetPill = clickedPill || pills[index];
+            if(targetPill) {
+                targetPill.classList.add('active');
+                targetPill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            }
 
-            // Render content
-            renderContent(itinerary[index]);
-            
-            // Reset main scroll
-            document.getElementById('contentScroll').scrollTop = 0;
+            renderContent(itinerary[index], index);
+            contentScroll.scrollTop = 0;
         }
 
-        function renderContent(data) {
-            let eventsHtml = data.events.map(event => `
-                <div class="event-card">
+        // Render Main Feed
+        function renderContent(data, dayIndex) {
+            let eventsHtml = data.events.map((event, eventIndex) => `
+                <div class="event-card" onclick="openModal(${dayIndex}, ${eventIndex})">
                     <img src="${event.img}" class="event-img" alt="${event.title}">
                     <div class="event-info">
                         <div class="event-time">${event.time}</div>
                         <div class="event-title">${event.title}</div>
                         <div class="event-desc">${event.desc}</div>
+                        <div class="click-hint">Tap for details <span>→</span></div>
                     </div>
                 </div>
             `).join('');
@@ -356,9 +650,38 @@
             `;
         }
 
-        // Init
-        renderNav();
-        renderContent(itinerary[0]);
+        // Open Detail Overlay
+        function openModal(dayIndex, eventIndex) {
+            const event = itinerary[dayIndex].events[eventIndex];
+            
+            // Populate Details
+            document.getElementById('modalTitle').innerText = event.title;
+            document.getElementById('modalTime').innerText = event.time;
+            document.getElementById('modalLoc').innerText = event.location;
+            document.getElementById('modalDress').innerText = event.dressCode;
+            document.getElementById('modalDesc').innerText = event.fullDesc;
+
+            // Populate Gallery (Main image + extra gallery images)
+            const galleryScroll = document.getElementById('modalGallery');
+            let imagesToLoad = [event.img, ...event.gallery];
+            
+            galleryScroll.innerHTML = imagesToLoad.map(src => `
+                <img src="${src}" class="gallery-img">
+            `).join('');
+            
+            // Reset scroll position and open
+            galleryScroll.scrollLeft = 0;
+            document.querySelector('.modal-content').scrollTop = 0;
+            modal.classList.add('open');
+        }
+
+        // Close Detail Overlay
+        function closeModal() {
+            modal.classList.remove('open');
+        }
+
+        // Start App
+        init();
     </script>
 </body>
 </html>
